@@ -2,8 +2,6 @@ name: MCP Server Build
 
 env:
   AZURE_WEBAPP_NAME: lztk-workshop-joke-mcp-server
-  #AZURE_WEBAPP_BACKUP_NAME: dnetconf-main-backup
-
   AZURE_WEBAPP_PACKAGE_PATH: './deploy'
   PROJECT_PATH: './src/JokeMcpServer/JokeMcpServer.csproj'
 
@@ -15,8 +13,6 @@ jobs:
   build:
     name: 'Build and Deploy'
     runs-on: ubuntu-latest
-    env:
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Add this environment override
     
     # Setup .NET
     steps:
