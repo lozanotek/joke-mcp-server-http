@@ -1,0 +1,43 @@
+name: MCP Server Build
+
+env:
+  AZURE_WEBAPP_NAME: lztk-workshop-joke-mcp-server
+  #AZURE_WEBAPP_BACKUP_NAME: dnetconf-main-backup
+
+  AZURE_WEBAPP_PACKAGE_PATH: './deploy'
+  PROJECT_PATH: './src/JokeMcpServer/JokeMcpServer.csproj'
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: 'Build and Deploy'
+    runs-on: ubuntu-latest
+
+    # Setup .NET
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: ./global.json
+      
+    # Restore, build, and publish
+    - name: Install dependencies
+      run: dotnet restore '${{ env.PROJECT_PATH }}'
+    
+    - name: Build
+      run: dotnet build '${{ env.PROJECT_PATH }}' --configuration Release --no-restore -r linux-x64
+
+    - name: Publish
+      run: dotnet publish '${{ env.PROJECT_PATH }}' --no-build -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}' -r linux-x64 --self-contained
+
+    # Deploy to Azure Web apps
+    - name: 'Azure WebApp Deploy'
+      uses: azure/webapps-deploy@v4
+      with: 
+        app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE  }} # Define secret variable in repository settings as per action documentation
+        package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
